@@ -1,115 +1,97 @@
-﻿using System;
+using System.Diagnostics.Metrics; 
 
-namespace AlgorithmAndDataStructures
+namespace GuessNumber 
 {
-    /// <summary>
-    /// Основной класс программы для игры "Угадай число".
-    /// </summary>
-    internal class Program
+    internal class Program 
     {
-        // Глобальные переменные для хранения статистики между играми
-        static int min = 0;
-        static int max = 0;
-        static int count = 0;
-        static int countGame = 0;
-
-        /// <summary>
-        /// Точка входа: управляет циклом повтора игры.
-        /// </summary>
-        static void Main(string[] args)
+        // Точка входа в приложение
+        static void Main(string[] args) 
         {
-            char answer = 'Y';
-            do
+            // Инициализация переменных для сбора статистики сессии
+            int minAttempt = 0;   // Наилучший результат (минимум попыток)
+            int maxAttempt = 0;   // Худший результат (максимум попыток)
+            int totalAttempts = 0; // Суммарное количество попыток
+            int gamesPlayed = 0;   // Общее число завершенных партий
+            
+            Random randomGenerator = new Random(); 
+            char userChoice = 'Y'; 
+
+            do 
             {
-                StartGameRound();
+                // Запуск игрового цикла и обновление глобальной статистики
+                PlayGame(randomGenerator, ref minAttempt, ref maxAttempt, ref totalAttempts, ref gamesPlayed);
+                
+                Console.WriteLine("Хотите сыграть еще раз? (Y/N)");
+                userChoice = Console.ReadKey().KeyChar; // Считывание символа без нажатия Enter
+                Console.WriteLine(); 
+            }
+            while (char.ToUpper(userChoice) == 'Y'); // Проверка условия продолжения
 
-                Console.WriteLine("Do you want play again? (Y/N)");
-                // Читаем строку и берем первый символ в верхнем регистре
-                string input = Console.ReadLine();
-                answer = !string.IsNullOrEmpty(input) ? input.ToUpper()[0] : 'N';
-
-            } while (answer == 'Y');
-
-            PrintFinalStats();
+            // Вывод итоговых показателей за все игры
+            Console.WriteLine($"\nСтатистика: Мин. попыток = {minAttempt}, Макс. попыток = {maxAttempt}, Среднее = {(double)totalAttempts / gamesPlayed:F2}");
         }
 
         /// <summary>
-        /// Метод отвечает за логику одного раунда игры
+        /// Логика одного игрового раунда
         /// </summary>
-        static void StartGameRound()
+        static int PlayGame(Random rnd, ref int min, ref int max, ref int count, ref int countGame)
         {
-            Random rnd = new Random();
-            int number = rnd.Next(1, 101);
-            int counter = 0;
+            int currentAttempts = 0; 
+            int targetNumber = rnd.Next(1, 100); // Загаданное число в диапазоне [1, 99]
+            
+            Console.WriteLine("Компьютер загадал число. Попробуйте угадать!");
 
-            while (true)
+            while (true) 
             {
-                int userNumber = GetValidUserInput();
-                counter++;
+                currentAttempts++; 
+                int userMove = ReadUserNumber();
 
-                if (userNumber > number)
-                {
-                    Console.WriteLine("Your number is greater");
-                }
-                else if (userNumber < number)
-                {
-                    Console.WriteLine("Your number is less");
-                }
+                if (userMove > targetNumber)
+                    Console.WriteLine("Загаданное число меньше вашего."); 
+                else if (userMove < targetNumber)
+                    Console.WriteLine("Загаданное число больше вашего."); 
                 else
                 {
-                    Console.WriteLine($"You are win! Attempts: {counter}");
-                    UpdateStatistics(counter);
-                    break;
+                    Console.WriteLine($"Победа! Угадано за {currentAttempts} попыток.");
+                    
+                    // Обновление рекордов
+                    if (min == 0 || currentAttempts < min) min = currentAttempts;
+                    if (currentAttempts > max) max = currentAttempts;
+                    
+                    count += currentAttempts;
+                    countGame++;
+                    break; 
                 }
             }
+            return currentAttempts;
         }
 
         /// <summary>
-        /// Метод для безопасного получения числа от пользователя (3 попытки).
+        /// Обработка ввода пользователя с валидацией
         /// </summary>
-        /// <returns>Введенное пользователем число.</returns>
-        static int GetValidUserInput()
+        static int ReadUserNumber()
         {
-            int userNumber;
-            for (int i = 0; i < 3; i++)
+            int result = 0;
+            const int maxRetries = 3; // Лимит ошибок при вводе
+
+            for (int i = 0; i < maxRetries; i++)
             {
-                Console.WriteLine("Input number from [1;100]");
-                if (int.TryParse(Console.ReadLine(), out userNumber) && userNumber <= 100 && userNumber >= 1)
+                Console.Write("Введите число от 1 до 100: ");
+                string input = Console.ReadLine();
+
+                // Проверка на числовой формат и вхождение в диапазон
+                if (int.TryParse(input, out result) && result >= 1 && result <= 100)
                 {
-                    return userNumber;
+                    return result;
                 }
 
-                if (i == 2)
-                {
-                    Console.WriteLine("You are stupid");
-                    Environment.Exit(0); // Выход из программы при 3 ошибках
-                }
+                Console.WriteLine("Ошибка! Нужно ввести целое число в указанном диапазоне.");
             }
-            return -1;
-        }
 
-        /// <summary>
-        /// Обновляет значения min, max и среднее количество попыток.
-        /// </summary>
-        /// <param name="counter">Количество попыток в текущей игре.</param>
-        static void UpdateStatistics(int counter)
-        {
-            if (min == 0 || min > counter) min =counter;
-            if (max < counter) max = counter;
-            count += counter;
-            countGame++;
-        }
-
-        /// <summary>
-        /// Выводит итоговую статистику на экран
-        /// </summary>
-        static void PrintFinalStats()
-        {
-            if (countGame > 0)
-            {
-                double avg = (double)count / countGame;
-                Console.WriteLine($"min={min} max={max} avg={avg:F2}");
-            }
+            // Экстренное завершение при многократных ошибках ввода
+            Console.WriteLine("Превышено количество попыток ввода. Выход из программы.");
+            Environment.Exit(0);
+            return 0;
         }
     }
 }
