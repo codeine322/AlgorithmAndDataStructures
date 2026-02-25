@@ -31,9 +31,7 @@ namespace GuessNumber
             Console.WriteLine($"\nСтатистика: Мин. попыток = {minAttempt}, Макс. попыток = {maxAttempt}, Среднее = {(double)totalAttempts / gamesPlayed:F2}");
         }
 
-        /// <summary>
-        /// Логика одного игрового раунда
-        /// </summary>
+        // Логика одного игрового раунда
         static int PlayGame(Random rnd, ref int min, ref int max, ref int count, ref int countGame)
         {
             int currentAttempts = 0; 
@@ -66,9 +64,7 @@ namespace GuessNumber
             return currentAttempts;
         }
 
-        /// <summary>
-        /// Обработка ввода пользователя с валидацией
-        /// </summary>
+        // Обработка ввода пользователя с валидацией
         static int ReadUserNumber()
         {
             int result = 0;
@@ -95,3 +91,4 @@ namespace GuessNumber
         }
     }
 }
+
