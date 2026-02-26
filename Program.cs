@@ -7,27 +7,23 @@ namespace GuessNumber
         // Точка входа в приложение
         static void Main(string[] args) 
         {
-            // Инициализация переменных для сбора статистики сессии
-            int minAttempt = 0;   // Наилучший результат (минимум попыток)
-            int maxAttempt = 0;   // Худший результат (максимум попыток)
-            int totalAttempts = 0; // Суммарное количество попыток
-            int gamesPlayed = 0;   // Общее число завершенных партий
+            int minAttempt = 0;
+            int maxAttempt = 0;
+            int totalAttempts = 0;
+            int gamesPlayed = 0;
             
             Random randomGenerator = new Random(); 
             char userChoice = 'Y'; 
 
             do 
             {
-                // Запуск игрового цикла и обновление глобальной статистики
                 PlayGame(randomGenerator, ref minAttempt, ref maxAttempt, ref totalAttempts, ref gamesPlayed);
                 
                 Console.WriteLine("Хотите сыграть еще раз? (Y/N)");
-                userChoice = Console.ReadKey().KeyChar; // Считывание символа без нажатия Enter
+                userChoice = Console.ReadKey().KeyChar;
                 Console.WriteLine(); 
             }
-            while (char.ToUpper(userChoice) == 'Y'); // Проверка условия продолжения
-
-            // Вывод итоговых показателей за все игры
+            while (char.ToUpper(userChoice) == 'Y');
             Console.WriteLine($"\nСтатистика: Мин. попыток = {minAttempt}, Макс. попыток = {maxAttempt}, Среднее = {(double)totalAttempts / gamesPlayed:F2}");
         }
 
@@ -35,7 +31,7 @@ namespace GuessNumber
         static int PlayGame(Random rnd, ref int min, ref int max, ref int count, ref int countGame)
         {
             int currentAttempts = 0; 
-            int targetNumber = rnd.Next(1, 100); // Загаданное число в диапазоне [1, 99]
+            int targetNumber = rnd.Next(1, 100);
             
             Console.WriteLine("Компьютер загадал число. Попробуйте угадать!");
 
@@ -52,7 +48,6 @@ namespace GuessNumber
                 {
                     Console.WriteLine($"Победа! Угадано за {currentAttempts} попыток.");
                     
-                    // Обновление рекордов
                     if (min == 0 || currentAttempts < min) min = currentAttempts;
                     if (currentAttempts > max) max = currentAttempts;
                     
@@ -68,27 +63,23 @@ namespace GuessNumber
         static int ReadUserNumber()
         {
             int result = 0;
-            const int maxRetries = 3; // Лимит ошибок при вводе
+            const int maxRetries = 3;
 
             for (int i = 0; i < maxRetries; i++)
             {
                 Console.Write("Введите число от 1 до 100: ");
                 string input = Console.ReadLine();
 
-                // Проверка на числовой формат и вхождение в диапазон
                 if (int.TryParse(input, out result) && result >= 1 && result <= 100)
                 {
                     return result;
                 }
 
                 Console.WriteLine("Ошибка! Нужно ввести целое число в указанном диапазоне.");
-            }
-
-            // Экстренное завершение при многократных ошибках ввода
+           }
             Console.WriteLine("Превышено количество попыток ввода. Выход из программы.");
             Environment.Exit(0);
-            return 0;
+            return -1;
         }
     }
 }
-
