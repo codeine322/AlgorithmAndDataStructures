@@ -79,7 +79,8 @@ namespace GuessNumber
            }
             Console.WriteLine("Превышено количество попыток ввода. Выход из программы.");
             Environment.Exit(0);
-            return -1;
+            return 0;
         }
     }
 }
+
